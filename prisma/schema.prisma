@@ -1,0 +1,62 @@
+// Prisma Schema - Site de Casamento
+// Banco: MySQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Casal {
+  id               Int      @id @default(autoincrement())
+  nomeNoivo        String
+  nomeNoiva        String
+  dataEvento       DateTime
+  horarioEvento    String?
+  localEvento      String
+  enderecoCompleto String?
+  mapsUrl          String?
+  fotoUrl          String
+  historiaCasal    String?  @db.Text
+}
+
+model Mensagem {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  mensagem  String   @db.Text
+  status    String   @default("pendente")
+  curtida   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Presente {
+  id          Int        @id @default(autoincrement())
+  nome        String
+  imagemUrl   String     @default("")
+  linkProduto String?    // Link opcional para o site do produto
+  valor       Float
+  ativo       Boolean    @default(true)
+  pagamentos  Pagamento[]
+}
+
+model Pagamento {
+  id         Int      @id @default(autoincrement())
+  presenteId Int
+  nome       String
+  valor      Float
+  metodo     String
+  status     String   @default("pendente")
+  mpPaymentId String? @map("mp_payment_id")
+  createdAt  DateTime @default(now())
+
+  presente Presente @relation(fields: [presenteId], references: [id], onDelete: Cascade)
+}
+
+model Admin {
+  id     Int    @id @default(autoincrement())
+  usuario String @unique
+  senha   String
+}
